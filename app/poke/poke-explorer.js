@@ -1,6 +1,7 @@
  'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { getPokemonDetails, getPokemonPage } from './pokeApi';
 
 const PAGE_SIZE = 20;
 
@@ -20,7 +21,7 @@ function getPokemonIdFromUrl(url) {
   return match?.[1] ?? null;
 }
 
-function TypeTabs({ types, activeTypeName, onChange }) {
+function TypeTabs({ types, activeTypeName, onChange, disabled }) {
   if (!Array.isArray(types) || types.length === 0) return null;
 
   return (
@@ -35,11 +36,13 @@ function TypeTabs({ types, activeTypeName, onChange }) {
             key={name}
             type='button'
             onClick={() => onChange(name)}
+            disabled={disabled}
             className={[
               'rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-wide transition',
               isActive
                 ? 'border-zinc-900 bg-zinc-900 text-white'
                 : 'border-zinc-200 bg-white text-zinc-800 hover:border-zinc-300 hover:bg-zinc-50',
+              disabled ? 'cursor-not-allowed opacity-60' : '',
             ].join(' ')}
           >
             {name}
@@ -58,6 +61,7 @@ function PokemonDetailsPanel({
   details,
   activeTypeName,
   onChangeType,
+  onRetry,
 }) {
   return (
     <div className='rounded-2xl border border-zinc-200 bg-white/70 p-4 shadow-sm backdrop-blur'>
@@ -72,6 +76,9 @@ function PokemonDetailsPanel({
           ) : (
             <div className='mt-0.5 text-xs text-zinc-500'>Click a Pokémon name to view info.</div>
           )}
+          {selectedName && status === 'loading' ? (
+            <div className='mt-2 text-xs text-zinc-500'>Loading details…</div>
+          ) : null}
         </div>
       </div>
 
@@ -86,6 +93,7 @@ function PokemonDetailsPanel({
                 types={details?.types}
                 activeTypeName={activeTypeName}
                 onChange={onChangeType}
+                disabled={status === 'loading'}
               />
             </div>
           </div>
@@ -93,6 +101,13 @@ function PokemonDetailsPanel({
           {status === 'error' ? (
             <div className='rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800'>
               {errorMessage}
+              <button
+                type='button'
+                onClick={onRetry}
+                className='mt-3 rounded-lg border border-red-200 bg-white px-3 py-1.5 text-sm font-medium text-red-900'
+              >
+                Retry
+              </button>
             </div>
           ) : status === 'loading' ? (
             <div className='space-y-3'>
@@ -175,16 +190,12 @@ export default function PokeExplorer() {
       setStatus('loading');
       setErrorMessage('');
 
-      const offset = (page - 1) * PAGE_SIZE;
-      const url = `https://pokeapi.co/api/v2/pokemon?offset=${offset}&limit=${PAGE_SIZE}`;
-
       try {
-        const res = await fetch(url, { signal: controller.signal });
-        if (!res.ok) {
-          throw new Error(`Request failed (${res.status})`);
-        }
-
-        const data = await res.json();
+        const data = await getPokemonPage({
+          page,
+          pageSize: PAGE_SIZE,
+          signal: controller.signal,
+        });
         if (!isActive) return;
 
         setItems(Array.isArray(data?.results) ? data.results : []);
@@ -224,12 +235,7 @@ export default function PokeExplorer() {
       setDetails(null);
 
       try {
-        const res = await fetch(selectedPokemon.url, { signal: controller.signal });
-        if (!res.ok) {
-          throw new Error(`Request failed (${res.status})`);
-        }
-
-        const data = await res.json();
+        const data = await getPokemonDetails({ url: selectedPokemon.url, signal: controller.signal });
         if (!isActive) return;
 
         setDetails(data);
@@ -383,6 +389,7 @@ export default function PokeExplorer() {
             details={details}
             activeTypeName={activeTypeName}
             onChangeType={(next) => setActiveTypeName(next)}
+            onRetry={() => setSelectedPokemon((p) => (p ? { ...p } : p))}
           />
         </div>
       </div>

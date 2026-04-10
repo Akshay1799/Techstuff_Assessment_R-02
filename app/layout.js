@@ -12,7 +12,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang='en'>
       <body className={inter.className}>
-        <main className='min-h-screen px-6 py-10 md:px-10'>{children}</main>
+        <main className='min-h-screen px-5 py-10 sm:px-8 lg:px-12'>
+          <div className='mx-auto w-full max-w-6xl'>{children}</div>
+        </main>
       </body>
     </html>
   );

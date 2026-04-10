@@ -38,11 +38,11 @@ function TypeTabs({ types, activeTypeName, onChange, disabled }) {
             onClick={() => onChange(name)}
             disabled={disabled}
             className={[
-              'rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-wide transition',
+              'rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-wide shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900/20',
               isActive
                 ? 'border-zinc-900 bg-zinc-900 text-white'
                 : 'border-zinc-200 bg-white text-zinc-800 hover:border-zinc-300 hover:bg-zinc-50',
-              disabled ? 'cursor-not-allowed opacity-60' : '',
+              disabled ? 'cursor-not-allowed opacity-60' : 'active:scale-[0.99]',
             ].join(' ')}
           >
             {name}
@@ -64,11 +64,11 @@ function PokemonDetailsPanel({
   onRetry,
 }) {
   return (
-    <div className='rounded-2xl border border-zinc-200 bg-white/70 p-4 shadow-sm backdrop-blur'>
+    <div className='rounded-2xl border border-zinc-200/70 bg-white/70 p-5 shadow-sm backdrop-blur'>
       <div className='flex items-start justify-between gap-4'>
         <div>
           <div className='text-xs font-semibold uppercase tracking-wide text-zinc-600'>Details</div>
-          <div className='mt-1 text-lg font-semibold text-zinc-900'>
+          <div className='mt-1 text-xl font-semibold tracking-tight text-zinc-900'>
             {selectedName ? <TitleCase>{selectedName}</TitleCase> : 'Select a Pokémon'}
           </div>
           {selectedId ? (
@@ -77,7 +77,10 @@ function PokemonDetailsPanel({
             <div className='mt-0.5 text-xs text-zinc-500'>Click a Pokémon name to view info.</div>
           )}
           {selectedName && status === 'loading' ? (
-            <div className='mt-2 text-xs text-zinc-500'>Loading details…</div>
+            <div className='mt-2 inline-flex items-center gap-2 text-xs text-zinc-500'>
+              <span className='h-1.5 w-1.5 animate-pulse rounded-full bg-zinc-400' />
+              Loading details…
+            </div>
           ) : null}
         </div>
       </div>
@@ -100,11 +103,12 @@ function PokemonDetailsPanel({
 
           {status === 'error' ? (
             <div className='rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800'>
-              {errorMessage}
+              <div className='font-medium text-red-900'>Couldn’t load details</div>
+              <div className='mt-1'>{errorMessage}</div>
               <button
                 type='button'
                 onClick={onRetry}
-                className='mt-3 rounded-lg border border-red-200 bg-white px-3 py-1.5 text-sm font-medium text-red-900'
+                className='mt-3 rounded-lg border border-red-200 bg-white px-3 py-1.5 text-sm font-medium text-red-900 shadow-sm transition hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300'
               >
                 Retry
               </button>
@@ -116,7 +120,7 @@ function PokemonDetailsPanel({
               <div className='h-4 w-48 animate-pulse rounded bg-zinc-200' />
             </div>
           ) : details ? (
-            <div className='rounded-xl border border-zinc-200 bg-white p-4'>
+            <div className='rounded-xl border border-zinc-200/80 bg-white p-4 shadow-sm'>
               <div className='text-xs font-semibold uppercase tracking-wide text-zinc-600'>
                 {activeTypeName ? (
                   <>
@@ -127,18 +131,18 @@ function PokemonDetailsPanel({
                 )}
               </div>
 
-              <div className='mt-3 grid gap-3 text-sm text-zinc-800'>
-                <div className='flex items-center justify-between'>
-                  <span className='text-zinc-600'>Game Indices count</span>
-                  <span className='font-semibold text-zinc-900'>
+              <div className='mt-3 grid gap-3 sm:grid-cols-2'>
+                <div className='rounded-lg bg-zinc-50 px-3 py-2'>
+                  <div className='text-xs text-zinc-500'>Game Indices count</div>
+                  <div className='mt-0.5 text-lg font-semibold text-zinc-900'>
                     {Array.isArray(details?.game_indices) ? details.game_indices.length : 0}
-                  </span>
+                  </div>
                 </div>
-                <div className='flex items-center justify-between'>
-                  <span className='text-zinc-600'>Total moves count</span>
-                  <span className='font-semibold text-zinc-900'>
+                <div className='rounded-lg bg-zinc-50 px-3 py-2'>
+                  <div className='text-xs text-zinc-500'>Total moves count</div>
+                  <div className='mt-0.5 text-lg font-semibold text-zinc-900'>
                     {Array.isArray(details?.moves) ? details.moves.length : 0}
-                  </span>
+                  </div>
                 </div>
               </div>
 
@@ -281,9 +285,9 @@ export default function PokeExplorer() {
   const selectedId = useMemo(() => getPokemonIdFromUrl(selectedPokemon?.url), [selectedPokemon]);
 
   return (
-    <div className='grid gap-6 lg:grid-cols-[1.6fr_1fr] lg:items-start'>
-      <div className='rounded-2xl border border-zinc-200 bg-white/70 shadow-sm backdrop-blur'>
-        <div className='flex flex-col gap-3 border-b border-zinc-200 px-4 py-4 sm:flex-row sm:items-center sm:justify-between'>
+    <div className='grid gap-6 lg:grid-cols-[1.65fr_1fr] lg:items-start'>
+      <div className='overflow-hidden rounded-2xl border border-zinc-200/70 bg-white/70 shadow-sm backdrop-blur'>
+        <div className='flex flex-col gap-3 border-b border-zinc-200/70 px-5 py-4 sm:flex-row sm:items-center sm:justify-between'>
           <div className='text-sm text-zinc-700'>
             Page <span className='font-medium text-zinc-900'>{page}</span> of{' '}
             <span className='font-medium text-zinc-900'>{pageCount}</span>
@@ -292,7 +296,7 @@ export default function PokeExplorer() {
           <div className='flex items-center gap-2'>
             <button
               type='button'
-              className='rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-sm font-medium text-zinc-900 shadow-sm disabled:cursor-not-allowed disabled:opacity-50'
+              className='rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-sm font-medium text-zinc-900 shadow-sm transition hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900/20 disabled:cursor-not-allowed disabled:opacity-50'
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={!canPrev || status === 'loading'}
             >
@@ -300,7 +304,7 @@ export default function PokeExplorer() {
             </button>
             <button
               type='button'
-              className='rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-sm font-medium text-zinc-900 shadow-sm disabled:cursor-not-allowed disabled:opacity-50'
+              className='rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-sm font-medium text-zinc-900 shadow-sm transition hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900/20 disabled:cursor-not-allowed disabled:opacity-50'
               onClick={() => setPage((p) => p + 1)}
               disabled={!canNext || status === 'loading'}
             >
@@ -320,26 +324,26 @@ export default function PokeExplorer() {
         <div className='overflow-x-auto'>
           <table className='w-full min-w-[420px] table-auto'>
             <thead>
-              <tr className='bg-zinc-50 text-left text-xs font-semibold uppercase tracking-wide text-zinc-600'>
-                <th className='w-28 px-4 py-3'>Sr. Number</th>
-                <th className='px-4 py-3'>Poke Name</th>
+              <tr className='bg-zinc-50/80 text-left text-xs font-semibold uppercase tracking-wide text-zinc-600'>
+                <th className='w-28 px-5 py-3'>Sr. Number</th>
+                <th className='px-5 py-3'>Poke Name</th>
               </tr>
             </thead>
-            <tbody className='divide-y divide-zinc-200'>
+            <tbody className='divide-y divide-zinc-200/70'>
               {status === 'loading' ? (
                 Array.from({ length: 8 }).map((_, i) => (
                   <tr key={`skeleton-${i}`} className='animate-pulse'>
-                    <td className='px-4 py-3'>
+                    <td className='px-5 py-3'>
                       <div className='h-4 w-12 rounded bg-zinc-200' />
                     </td>
-                    <td className='px-4 py-3'>
+                    <td className='px-5 py-3'>
                       <div className='h-4 w-40 rounded bg-zinc-200' />
                     </td>
                   </tr>
                 ))
               ) : items.length === 0 ? (
                 <tr>
-                  <td colSpan={2} className='px-4 py-10 text-center text-sm text-zinc-600'>
+                  <td colSpan={2} className='px-5 py-12 text-center text-sm text-zinc-600'>
                     No Pokémon found.
                   </td>
                 </tr>
@@ -347,9 +351,15 @@ export default function PokeExplorer() {
                 items.map((p, idx) => {
                   const isSelected = selectedPokemon?.name && p?.name === selectedPokemon.name;
                   return (
-                    <tr key={p?.name || idx} className='text-sm'>
-                      <td className='px-4 py-3 text-zinc-600'>{offset + idx + 1}</td>
-                      <td className='px-4 py-3'>
+                    <tr
+                      key={p?.name || idx}
+                      className={[
+                        'text-sm transition',
+                        isSelected ? 'bg-zinc-50/80' : 'hover:bg-zinc-50/50',
+                      ].join(' ')}
+                    >
+                      <td className='px-5 py-3 text-zinc-600'>{offset + idx + 1}</td>
+                      <td className='px-5 py-3'>
                         <button
                           type='button'
                           onClick={() => {
@@ -358,8 +368,10 @@ export default function PokeExplorer() {
                             setActiveTypeName('');
                           }}
                           className={[
-                            'inline-flex items-center gap-2 font-semibold transition',
-                            isSelected ? 'text-zinc-900' : 'text-blue-700 hover:text-blue-800',
+                            'inline-flex items-center gap-2 font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/20',
+                            isSelected
+                              ? 'text-zinc-900'
+                              : 'text-blue-700 hover:text-blue-800 hover:underline hover:underline-offset-4',
                           ].join(' ')}
                         >
                           <TitleCase>{p?.name}</TitleCase>

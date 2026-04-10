@@ -12,7 +12,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang='en'>
       <body className={inter.className}>
-        <main className='flex min-h-screen flex-col items-center justify-between p-24'>{children}</main>
+        <main className='min-h-screen px-6 py-10 md:px-10'>{children}</main>
       </body>
     </html>
   );
